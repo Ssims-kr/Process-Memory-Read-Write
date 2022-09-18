@@ -2,17 +2,50 @@
 API 호출을 통해 프로세스 메모리에 접근하여 데이터를 읽거나 수정할 수 있는 소스 코드입니다.
 
 # 사용법
+## Load(불러오기)
 ```C#
-ProcessMemoryManager pmm = new ProcessMemoryManager(7760);
+// [1] Process ID
+int ProcessId = 1234; /* or You can get ID by Process class */
+ProcessMemoryManager pmm = new ProcessMemoryManager(ProcessId);
 
+// [2] Process Name
+ProcessMemoryManager pmm = new ProcessMemoryManager("Process Name");
+```
+
+## Read(읽기)
+```C#
 // Read
-//pmm.ReadMemory(0x5E366, new IntPtr(0x400000), out byte[] data, 2, out int bytesRead);
-pmm.ReadMemory<short>(0x5E366, new IntPtr(0x400000), out byte[] data, out int bytesRead);
-Console.WriteLine(BitConverter.ToInt16(data, 0));
+int Offset = 0x5E5E5;
+int ImageBase = 0x400000;
 
+pmm.ReadMemory<short>(Offset, new IntPtr(ImageBase), out byte[] data, out int bytesRead);
+```
+
+## Write(쓰기)
+```C#
 // Write
-pmm.WriteMemory(0x5E366, new IntPtr(0x400000), BitConverter.GetBytes((short)10), out int bytesWritten);
+int Offset = 0x5E5E5;
+int ImageBase = 0x400000;
 
-// Convert Data
-Console.WriteLine(BitConverter.ToInt16(data, 0));
+// [1]
+byte[] writeData = new byte[2] { 0x00, 0x01 };
+pmm.WriteMemory(Offset, new IntPtr(ImageBase), writeData, out int bytesWritten);
+
+// [2]
+pmm.WriteMemory(Offset, new IntPtr(ImageBase), BitConverter.GetBytes((short)255), out int bytesWritten);
+```
+
+## Convert Data
+```C#
+// Convert
+BitConverter.ToInt16(data);
+BitConverter.ToInt32(data);
+// ...
+```
+
+## Check
+```C#
+if (pmm.ReadMemory<short>(Offset, new IntPtr(ImageBase), out byte[] data, out int bytesRead) == false) {
+    // ...
+}
 ```
